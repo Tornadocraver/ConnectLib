@@ -297,3 +297,15 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+ConnectLibCORE/ImageLibCORE/ImageLibCORE.csproj
+ConnectLibSTD/ImageLibSTD/ImageLibSTD.csproj
+ConnectLibSTD/TestSTD/App.config
+ConnectLibSTD/TestSTD/FodyWeavers.xml
+ConnectLibSTD/TestSTD/packages.config
+ConnectLibSTD/TestSTD/Program.cs
+ConnectLibSTD/TestSTD/Properties/AssemblyInfo.cs
+ConnectLibSTD/TestSTD/TestSTD.csproj
+Shared/ImageLib/ImageClient.cs
+Shared/ImageLib/ImageOption.cs
+Shared/ImageLib/ImageServer.cs
+Shared/ImageLib/Tools.cs
