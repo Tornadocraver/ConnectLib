@@ -16,23 +16,27 @@
     <SignAssembly>false</SignAssembly>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <FileVersion>1.1.0.0</FileVersion>
+    <PackageProjectUrl>https://github.com/Tornadocraver/ConnectLib</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/Tornadocraver/ConnectLib/blob/master/Connect.ico</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>
+    <PackageTags>C#, csharp, dotnet, connection, manager, messaging, library</PackageTags>
+    <RepositoryType>GitHub</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\Shared\ConnectLib\Client.cs" Link="Classes\Client.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\ClientInformation.cs" Link="Classes\Data\ClientInformation.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\ClientObject.cs" Link="Classes\Data\ClientObject.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\ClientState.cs" Link="Classes\Types\ClientState.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\Command.cs" Link="Classes\Data\Command.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\CommandOption.cs" Link="Classes\Types\CommandOption.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\CommandType.cs" Link="Classes\Types\CommandType.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\Connection.cs" Link="Classes\Networking\Connection.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\Cryptography.cs" Link="Classes\Cryptography\Cryptography.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\Exceptions.cs" Link="Classes\Exceptions\Exceptions.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\IPAddressConverter.cs" Link="Classes\Networking\IPAddressConverter.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\NDNStream.cs" Link="Classes\Networking\NDNStream.cs" />
-    <Compile Include="..\..\Shared\ConnectLib\Networking.cs" Link="Classes\Networking\Networking.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Cryptography\Cryptography.cs" Link="Classes\Cryptography\Cryptography.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Data\ClientInformation.cs" Link="Classes\Data\ClientInformation.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Data\ClientObject.cs" Link="Classes\Data\ClientObject.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Data\Command.cs" Link="Classes\Data\Command.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Exceptions\Exceptions.cs" Link="Classes\Exceptions\Exceptions.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Networking\Connection.cs" Link="Classes\Networking\Connection.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Networking\IPAddressConverter.cs" Link="Classes\Networking\IPAddressConverter.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Networking\Networking.cs" Link="Classes\Networking\Networking.cs" />
     <Compile Include="..\..\Shared\ConnectLib\Server.cs" Link="Classes\Server.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Types\ClientState.cs" Link="Classes\Types\ClientState.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Types\CommandOption.cs" Link="Classes\Types\CommandOption.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Types\CommandType.cs" Link="Classes\Types\CommandType.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +48,7 @@
     <Folder Include="Classes\Data\" />
     <Folder Include="Classes\Exceptions\" />
     <Folder Include="Classes\Cryptography\" />
+    <Folder Include="Classes\Networking\" />
     <Folder Include="Classes\Types\" />
   </ItemGroup>
 
