@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>1.1.0-beta</Version>
+    <Company>Tornadoenterprises</Company>
+    <Authors>Micah Vertal</Authors>
+    <Description>Connection library for the .NET Standard 2.0 framework. Allows for implementation of custom commands and tools across a client-server or peer-to-peer connection.</Description>
+    <Product>ConnectLibSTD</Product>
+    <PackageReleaseNotes>This is currently an experimental (unstable) release! Feel free to mess around with it, but do not expect too much yet. Documentation will be released in future versions.</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>Tornadoenterprises 2017</Copyright>
+    <PackageLicenseUrl>http://apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ConnectLib\Client.cs" Link="Classes\Client.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ClientInformation.cs" Link="Classes\Data\ClientInformation.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ClientObject.cs" Link="Classes\Data\ClientObject.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ClientState.cs" Link="Classes\Types\ClientState.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Command.cs" Link="Classes\Data\Command.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\CommandOption.cs" Link="Classes\Types\CommandOption.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\CommandType.cs" Link="Classes\Types\CommandType.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Connection.cs" Link="Classes\Networking\Connection.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Cryptography.cs" Link="Classes\Cryptography\Cryptography.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Exceptions.cs" Link="Classes\Exceptions\Exceptions.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\IPAddressConverter.cs" Link="Classes\Networking\IPAddressConverter.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\NDNStream.cs" Link="Classes\Networking\NDNStream.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Networking.cs" Link="Classes\Networking\Networking.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Server.cs" Link="Classes\Server.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="newtonsoft.json" Version="11.0.1-beta1" />
+    <PackageReference Include="System.Json" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Classes\Data\" />
+    <Folder Include="Classes\Exceptions\" />
+    <Folder Include="Classes\Cryptography\" />
+    <Folder Include="Classes\Types\" />
+  </ItemGroup>
+
+</Project>

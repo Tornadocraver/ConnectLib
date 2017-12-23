@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ImageLib\ImageClient.cs" Link="ImageClient.cs" />
+    <Compile Include="..\..\Shared\ImageLib\ImageServer.cs" Link="ImageServer.cs" />
+    <Compile Include="..\..\Shared\ImageLib\Tools.cs" Link="Other Classes\Tools.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CoreCompat.System.Drawing" Version="1.0.0-beta006" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConnectLibCORE\ConnectLibCORE.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Other Classes\" />
+  </ItemGroup>
+
+</Project>

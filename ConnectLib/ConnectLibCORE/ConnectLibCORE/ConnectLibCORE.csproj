@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ConnectLib\Client.cs" Link="Client.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ClientDetail.cs" Link="Other Classes\ClientDetail.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ClientState.cs" Link="Other Classes\ClientState.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Command.cs" Link="Other Classes\Command.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\CommandType.cs" Link="Other Classes\CommandType.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\EventType.cs" Link="Other Classes\EventType.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Server.cs" Link="Server.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\ServerClient.cs" Link="Other Classes\ServerClient.cs" />
+    <Compile Include="..\..\Shared\ConnectLib\Tools.cs" Link="Other Classes\Tools.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Other Classes\" />
+  </ItemGroup>
+
+</Project>
