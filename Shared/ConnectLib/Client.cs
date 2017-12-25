@@ -63,7 +63,7 @@ namespace ConnectLib
             }
             catch (ThreadInterruptedException) { }
             catch (Exception error) { OnError?.Invoke(error); }
-            finally { if (Connected) { Disconnect(true); } }
+            finally { if (Connected) { Disconnect(); } }
         }
         #endregion
 
@@ -155,20 +155,25 @@ namespace ConnectLib
         }
 
         /// <summary>
-        /// Disconnects the Client from the remote host if connected.
+        /// Disconnects the Client from the remote host if connected. NOTE: Currently run asynchronously due to design flaws (to be fixed).
+        /// Use this code after calling this method to wait for completion: 
+        /// while (client.Connected) { System.Threading.Thread.Sleep(100); }
         /// </summary>
         /// <param name="sendDisconnect">Indicates whether the remote host should be notified about the disconnect.</param>
         protected void Disconnect(bool sendDisconnect)
         {
-            Active = false;
-            Connecting = false;
-            try
+            new Thread(() =>
             {
-                if (ClientInterface.Connections.ContainsKey("Main") && sendDisconnect)
-                    ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Close, CommandOption.Broadcast));
-            }
-            catch (Exception error) { OnError?.Invoke(error); }
-            finally { Connected = false; ClientInterface?.Dispose(); ClientInterface = null; Clients.Clear(); }
+                Active = false;
+                Connecting = false;
+                try
+                {
+                    if (ClientInterface.Connections.ContainsKey("Main") && sendDisconnect)
+                        ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Close, CommandOption.Broadcast));
+                }
+                catch (Exception error) { OnError?.Invoke(error); }
+                finally { Connected = false; ClientInterface?.Dispose(); ClientInterface = null; Clients.Clear(); }
+            }).Start();
         }
         /// <summary>
         /// Pauses or unpauses the message handler.

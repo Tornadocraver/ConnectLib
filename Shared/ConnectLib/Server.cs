@@ -61,7 +61,7 @@ namespace ConnectLib
                                     case CommandType.Custom:
                                         {
                                             if (command.Options.Contains(CommandOption.Broadcast))
-                                                Task.Run(() => Broadcast(Information, command));
+                                                Broadcast(Information, command);
                                             OnCustomCommand?.Invoke(command);
                                             break;
                                         }
@@ -76,7 +76,7 @@ namespace ConnectLib
             }
             catch (ThreadInterruptedException) { }
             catch (Exception error) { OnError?.Invoke(error); }
-            finally { thisClient.Dispose(); }
+            finally { new Thread(() => { Thread.Sleep(1000); thisClient.Dispose(); }).Start(); }
         }
         /// <summary>
         /// Listens for incomming connections on the specified port.
@@ -132,40 +132,98 @@ namespace ConnectLib
         #endregion
 
         #region Controls
-        #region Start/Stop
         /// <summary>
         /// Starts listening for connections on the specified port.
         /// </summary>
         /// <param name="port">The port to listen on.</param>
-        public virtual void Start(int port)
+        public virtual async Task Start(int port)
         {
             if (!Active)
             {
                 Port = port;
-                StartListening(port);
+                await StartListening(port);
             }
             else
             {
-                Stop();
-                Start(port);
+                await Stop();
+                await Start(port);
             }
         }
         /// <summary>
         /// Stops listening and closes all connections to remote hosts.
         /// </summary>
-        public virtual void Stop()
+        public virtual async Task Stop()
         {
-            StopListening();
-            Broadcast(new Command(null, Information, CommandType.Close, null));
+            await StopListening();
+            await Broadcast(new Command(null, Information, CommandType.Close, null));
             ClearClients();
             Active = false;
         }
+        /// <summary>
+        /// Broadcasts the specified command(s) to all connected hosts.
+        /// </summary>
+        /// <param name="commands">The command(s) to be broadcast.</param>
+        public async Task Broadcast(params Command[] commands)
+        {
+            try
+            {
+                foreach (ClientObject client in Clients.Values)
+                    await Send(client, commands);
+            }
+            catch (Exception error) { OnError?.Invoke(error); }
+        }
+        /// <summary>
+        /// Broadcasts the specified command(s) to all connected hosts.
+        /// </summary>
+        /// <param name="exclude">The ClientInformation to exclude from the broadcast.</param>
+        /// <param name="commands">The command(s) to be broadcast.</param>
+        public async Task Broadcast(ClientInformation exclude, params Command[] commands)
+        {
+            try
+            {
+                foreach (ClientObject client in Clients.Values)
+                    if (client.Information.ID != exclude.ID)
+                        Send(client, commands);
+            }
+            catch (Exception error) { OnError?.Invoke(error); }
+        }
+        /// <summary>
+        /// Sends the specified command(s) to the specified host.
+        /// </summary>
+        /// <param name="target">The ClientInformation to send to.</param>
+        /// <param name="commands">The command(s) to be sent.</param>
+        public async Task Send(ClientInformation target, params Command[] commands)
+        {
+            try { Send(Clients[target.ID], commands); }
+            catch (Exception error) { OnError?.Invoke(error); }
+        }
+        /// <summary>
+        /// Sends the specified command(s) to the specified host.
+        /// </summary>
+        /// <param name="target">The ClientObject to send to.</param>
+        /// <param name="commands">The command(s) to be sent.</param>
+        public async Task Send(ClientObject target, params Command[] commands)
+        {
+            try { target.Connections["Main"].Write(Password, commands); }
+            catch (Exception error) { OnError?.Invoke(error); }
+        }
 
+        /// <summary>
+        /// Pauses or unpauses the message handler.
+        /// </summary>
+        /// <param name="pausing">Indicates whether to pause (true) or unpause (false).</param>
+        protected void Pause(bool pausing)
+        {
+            if (pausing)
+                Pausing = true;
+            else
+                Pausing = false;
+        }
         /// <summary>
         /// Starts listening for connections on the specified port.
         /// </summary>
         /// <param name="port">The port to listen on.</param>
-        protected void StartListening(int port)
+        protected async Task StartListening(int port)
         {
             try
             {
@@ -183,7 +241,7 @@ namespace ConnectLib
         /// <summary>
         /// Stops listening and continues to handle remote hosts that were previously connected.
         /// </summary>
-        protected void StopListening()
+        protected async Task StopListening()
         {
             try
             {
@@ -194,68 +252,6 @@ namespace ConnectLib
             }
             catch (Exception error) { OnError?.Invoke(error); }
             finally { ConnectionListener = null; }
-        }
-        #endregion
-
-        /// <summary>
-        /// Broadcasts the specified command(s) to all connected hosts.
-        /// </summary>
-        /// <param name="commands">The command(s) to be broadcast.</param>
-        public void Broadcast(params Command[] commands)
-        {
-            try
-            {
-                foreach (ClientObject client in Clients.Values)
-                    Send(client, commands);
-            }
-            catch (Exception error) { OnError?.Invoke(error); }
-        }
-        /// <summary>
-        /// Broadcasts the specified command(s) to all connected hosts.
-        /// </summary>
-        /// <param name="exclude">The ClientInformation to exclude from the broadcast.</param>
-        /// <param name="commands">The command(s) to be broadcast.</param>
-        public void Broadcast(ClientInformation exclude, params Command[] commands)
-        {
-            try
-            {
-                foreach (ClientObject client in Clients.Values)
-                    if (client.Information.ID != exclude.ID)
-                        Send(client, commands);
-            }
-            catch (Exception error) { OnError?.Invoke(error); }
-        }
-        /// <summary>
-        /// Sends the specified command(s) to the specified host.
-        /// </summary>
-        /// <param name="target">The ClientInformation to send to.</param>
-        /// <param name="commands">The command(s) to be sent.</param>
-        public void Send(ClientInformation target, params Command[] commands)
-        {
-            try { Send(Clients[target.ID], commands); }
-            catch (Exception error) { OnError?.Invoke(error); }
-        }
-        /// <summary>
-        /// Sends the specified command(s) to the specified host.
-        /// </summary>
-        /// <param name="target">The ClientObject to send to.</param>
-        /// <param name="commands">The command(s) to be sent.</param>
-        public void Send(ClientObject target, params Command[] commands)
-        {
-            try { target.Connections["Main"].Write(Password, commands); }
-            catch (Exception error) { OnError?.Invoke(error); }
-        }
-
-        /// <summary>
-        /// Pauses or unpauses the message handler.
-        /// </summary>
-        /// <param name="pausing">Indicates whether to pause (true) or unpause (false).</param>
-        protected void Pause(bool pausing)
-        {
-            if (pausing)
-                Pausing = true;
-            else
-                Pausing = false;
         }
         #endregion
 
@@ -326,6 +322,11 @@ namespace ConnectLib
         #endregion
 
         #region Other Methods
+        private async Task Run()
+        {
+            Task.Factory.
+        }
+
         /// <summary>
         /// Determines whether the remote host is authorized to access the session.
         /// </summary>
@@ -368,7 +369,7 @@ namespace ConnectLib
         private void ClientAdded(ClientObject newClient)
         {
             Clients.Add(newClient.Information.ID, newClient);
-            Task.Run(() => Broadcast(newClient.Information, new Command(null, newClient.Information, CommandType.ClientAdded)));
+            Broadcast(newClient.Information, new Command(null, newClient.Information, CommandType.ClientAdded));
             OnClientConnected?.Invoke(newClient.Information);
         }
         /// <summary>
@@ -377,9 +378,9 @@ namespace ConnectLib
         /// <param name="oldClient">The ClientObject representing the remote host.</param>
         private void ClientRemoved(ClientObject oldClient)
         {
-            OnClientDisconnected?.Invoke(oldClient.Information);
-            Task.Run(() => Broadcast(oldClient.Information, new Command(null, oldClient.Information, CommandType.ClientRemoved)));
             Clients.Remove(oldClient.Information.ID);
+            Broadcast(oldClient.Information, new Command(null, oldClient.Information, CommandType.ClientRemoved));
+            OnClientDisconnected?.Invoke(oldClient.Information);
         }
         /// <summary>
         /// Sends the information of each connected client to the new client.
