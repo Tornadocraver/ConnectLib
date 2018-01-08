@@ -111,7 +111,7 @@ namespace ConnectLib.Networking
         /// </summary>
         public void StopHandler()
         {
-            if (CommandHandler != null && CommandHandler.ThreadState == ThreadState.Running)
+            if (CommandHandler != null && CommandHandler.IsAlive)
             {
                 CommandHandler.Interrupt();
                 CommandHandler.Join();
@@ -127,10 +127,15 @@ namespace ConnectLib.Networking
         /// <returns>An object of type T.</returns>
         public T Read<T>()
         {
-            while (!Stream.DataAvailable)
-                Thread.Sleep(10);
-            int byteCount = Reader.ReadInt32();
-            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)), Settings);
+            try
+            {
+                while (!DataAvailable || Reading)
+                    Thread.Sleep(0);
+                Reading = true;
+                int byteCount = Reader.ReadInt32();
+                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)), Settings);
+            }
+            finally { Reading = false; }
         }
         /// <summary>
         /// Reads an object from the remote session that has been encrypted with the specified password.
@@ -140,10 +145,15 @@ namespace ConnectLib.Networking
         /// <returns>An object of type T.</returns>
         public T Read<T>(SecureString password)
         {
-            while (!Stream.DataAvailable)
-                Thread.Sleep(10);
-            int byteCount = Reader.ReadInt32();
-            return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)).AESDecrypt(password), Settings);
+            try
+            {
+                while (!DataAvailable || Reading)
+                    Thread.Sleep(0);
+                Reading = true;
+                int byteCount = Reader.ReadInt32();
+                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)).AESDecrypt(password), Settings);
+            }
+            finally { Reading = false; }
         }
 
         /// <summary>
@@ -152,13 +162,20 @@ namespace ConnectLib.Networking
         /// <param name="objects">The object(s) to be written.</param>
         public void Write(params object[] objects)
         {
-            foreach (object obj in objects)
+            while (Writing)
+                Thread.Sleep(0);
+            try
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings));
-                Writer.Write(bytes.Length);
-                Writer.Write(bytes);
-                Writer.Flush();
+                foreach (object obj in objects)
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings));
+                    Writer.Write(bytes.Length);
+                    Writer.Write(bytes);
+                    Writer.Flush();
+                }
             }
+            catch (IOException) { }
+            finally { Writing = false; }
         }
         /// <summary>
         /// Encrypts and writes the specified objects to the remote session.
@@ -167,13 +184,20 @@ namespace ConnectLib.Networking
         /// <param name="objects">The object(s) to be encrypted and written.</param>
         public void Write(SecureString password, params object[] objects)
         {
-            foreach (object obj in objects)
+            while (Writing)
+                Thread.Sleep(0);
+            try
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings).AESEncrypt(password));
-                Writer.Write(bytes.Length);
-                Writer.Write(bytes);
-                Writer.Flush();
+                foreach (object obj in objects)
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings).AESEncrypt(password));
+                    Writer.Write(bytes.Length);
+                    Writer.Write(bytes);
+                    Writer.Flush();
+                }
             }
+            catch (IOException) { }
+            finally { Writing = false; }
         }
         #endregion
 
@@ -209,9 +233,17 @@ namespace ConnectLib.Networking
         /// </summary>
         private bool Disposed = false;
         /// <summary>
+        /// Indicates whether a Read<T> opertaiton is running.
+        /// </summary>
+        private bool Reading = false;
+        /// <summary>
         /// The settings used to serialize/deserialize JSON.
         /// </summary>
         private JsonSerializerSettings Settings = new JsonSerializerSettings();
+        /// <summary>
+        /// Indicated whether a Write operation is running.
+        /// </summary>
+        private bool Writing = false;
         #endregion
     }
 }

@@ -10,12 +10,23 @@ namespace ConnectLib.Networking
     public static class Tools
     {
         /// <summary>
-        /// Returns whether the current computer has a connection to a network (true).
+        /// Returns whether the current computer has a connection to a network.
         /// </summary>
-        /// <returns>A bool indicating the state of the computer.</returns>
-        public static bool HasConnection()
+        /// <param name="internet">Indicates whether to check for a network (false) or internet (true) connection.</param>
+        /// <returns>A bool indicating whether the computer has a connection to a network.</returns>
+        public static bool HasConnection(bool internet)
         {
-            return NetworkInterface.GetIsNetworkAvailable();
+            if (internet)
+            {
+                try
+                {
+                    using (new WebClient().OpenRead("http://clients3.google.com/generate_204"))
+                        return true;
+                }
+                catch { return false; }
+            }
+            else
+                return NetworkInterface.GetIsNetworkAvailable();
         }
 
         /// <summary>
@@ -24,6 +35,8 @@ namespace ConnectLib.Networking
         /// <returns>An external IPAddress.</returns>
         public static IPAddress GetExternalIP()
         {
+            if (!HasConnection(true))
+                return IPAddress.Loopback;
             try { return IPAddress.Parse((new WebClient()).DownloadString("https://api.ipify.org")); }
             catch { return GetInternalIP(); }
         }
@@ -33,7 +46,7 @@ namespace ConnectLib.Networking
         /// <returns>An internal IPAddress.</returns>
         public static IPAddress GetInternalIP()
         {
-            if (!HasConnection())
+            if (!HasConnection(false))
                 return IPAddress.Loopback;
             try { return Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork); }
             catch { return IPAddress.Loopback; }

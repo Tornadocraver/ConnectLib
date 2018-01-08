@@ -30,20 +30,6 @@ namespace ConnectLib.Exceptions
         }
     }
     /// <summary>
-    /// Thrown when an invalid name is supplied.
-    /// </summary>
-    public class NameException : Exception
-    {
-        public string OffendingName { get; }
-        public override string Message { get; }
-
-        public NameException(string errorMessage, string offendingName)
-        {
-            Message = errorMessage;
-            OffendingName = offendingName;
-        }
-    }
-    /// <summary>
     /// Thrown when a network error occurs.
     /// </summary>
     public class NetworkException : Exception

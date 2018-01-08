@@ -4,20 +4,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.1.2-beta</Version>
+    <Version>1.2.0-beta</Version>
     <Company>Tornadoenterprises</Company>
     <Authors>Micah Vertal</Authors>
     <Description>Connection library for the .NET Standard 2.0 framework. Allows for implementation of custom commands and tools across a client-server or peer-to-peer connection.</Description>
     <Product>ConnectLibSTD</Product>
-    <PackageReleaseNotes>Temporarily fixed infinite loops in Client and Server classes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Implemented asynchronous methods for Client/Server classes, temporarily removed support for peer-to-peer connections (saving for later releases).</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <Copyright>Tornadoenterprises 2017</Copyright>
     <PackageLicenseUrl>http://apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <SignAssembly>false</SignAssembly>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <PackageProjectUrl>https://github.com/Tornadocraver/ConnectLib</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/Tornadocraver/ConnectLib/blob/master/Connect.ico</PackageIconUrl>
+    <PackageIconUrl>https://www.tornadoenterprises.com/content/images?id=ConnectLibIcon</PackageIconUrl>
     <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>
     <PackageTags>C#, csharp, dotnet, connection, manager, messaging, library</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
