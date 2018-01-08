@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Shared\ImageLib\ImageClient.cs" Link="ImageClient.cs" />
+    <Compile Include="..\..\Shared\ImageLib\ImageServer.cs" Link="ImageServer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ConnectLibSTD\ConnectLibSTD.csproj" />
+  </ItemGroup>
+
+</Project>
