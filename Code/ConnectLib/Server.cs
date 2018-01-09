@@ -329,6 +329,10 @@ namespace ConnectLib
         /// </summary>
         public bool Active { get; private set; } = false;
         /// <summary>
+        /// A collection of ClientObject objects representing the Clients connected to the Server.
+        /// </summary>
+        public Dictionary<string, ClientObject> Clients { get; set; } = new Dictionary<string, ClientObject>();
+        /// <summary>
         /// Indicates the number of remote hosts connected to the Server.
         /// </summary>
         public int Count { get { return (Clients != null) ? Clients.Count : 0; } }
@@ -337,10 +341,6 @@ namespace ConnectLib
         /// </summary>
         public ClientInformation Information { get; private set; }
 
-        /// <summary>
-        /// A collection of ClientObject objects representing the Clients connected to the Server.
-        /// </summary>
-        protected Dictionary<string, ClientObject> Clients { get; set; } = new Dictionary<string, ClientObject>();
         /// <summary>
         /// A Thread that listens for new client connections.
         /// </summary>
