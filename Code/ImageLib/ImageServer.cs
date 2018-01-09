@@ -26,7 +26,8 @@ namespace ImageLib
         public override void Start(int port)
         {
             Port = port;
-            base.Start(port);
+            try { base.Start(port); }
+            catch (Exception error) { throw error; }
             OnStarted?.BeginInvoke(result => OnStarted.EndInvoke(result), null);
         }
         public override async Task StartAsync(int port)
@@ -42,7 +43,8 @@ namespace ImageLib
                 foreach (ClientObject client in Clients.Values)
                     client.Connections["Main"].Write(Password, new Command(client.Information, Information, CommandType.Custom) { Properties = arguments });
             }
-            base.Stop();
+            try { base.Stop(); }
+            catch (Exception error) { throw error; }
             OnStopped?.BeginInvoke(result => OnStopped.EndInvoke(result), null);
             Port = -1;
         }

@@ -25,7 +25,8 @@ namespace ImageLib
         #region Controls
         public override void Connect(IPAddress remote, int port)
         {
-            base.Connect(remote, port);
+            try { base.Connect(remote, port); }
+            catch (Exception error) { throw error; }
             while (Clients.Count == 0) { }
             Pause(true);
             Dictionary<string, object> arguments = new Dictionary<string, object>();
@@ -51,7 +52,8 @@ namespace ImageLib
         }
         public override void Disconnect()
         {
-            base.Disconnect();
+            try { base.Disconnect(); }
+            catch (Exception error) { throw error; }
             OnDisconnected?.BeginInvoke(result => OnDisconnected.EndInvoke(result), null);
         }
         public override async Task DisconnectAsync()
