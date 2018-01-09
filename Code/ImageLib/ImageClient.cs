@@ -25,26 +25,29 @@ namespace ImageLib
         #region Controls
         public override void Connect(IPAddress remote, int port)
         {
-            try { base.Connect(remote, port); }
-            catch (Exception error) { throw error; }
-            while (Clients.Count == 0) { }
-            Pause(true);
-            Dictionary<string, object> arguments = new Dictionary<string, object>();
-            arguments.Add("Imaging", "Start");
-            ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Custom) { Properties = arguments });
-            readCommand:
-            Command response = ClientInterface.Connections["Main"].Read<Command>(Password);
-            if (response == null || response.Properties == null)
-                goto readCommand;
-            Socket receiving = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            Socket sending = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            receiving.Connect(remote, int.Parse(response.Properties["SendingPort"].ToString()));
-            sending.Connect(remote, int.Parse(response.Properties["ReceivingPort"].ToString()));
-            ClientInterface.Connections.Add("ImageReceiver", new Connection(receiving, true, new Thread(() => { WatchForImages(); })));
-            ClientInterface.Connections.Add("ImageSender", new Connection(sending, true));
-            ClientInterface.Connections["ImageReceiver"].StartHandler();
-            Pause(false);
-            OnConnected?.BeginInvoke(result => { try { OnConnected.EndInvoke(result); } catch { } }, null);
+            try
+            {
+                base.Connect(remote, port);
+                while (Clients.Count == 0) { }
+                Pause(true);
+                Dictionary<string, object> arguments = new Dictionary<string, object>();
+                arguments.Add("Imaging", "Start");
+                ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Custom) { Properties = arguments });
+                readCommand:
+                Command response = ClientInterface.Connections["Main"].Read<Command>(Password);
+                if (response == null || response.Properties == null)
+                    goto readCommand;
+                Socket receiving = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                Socket sending = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                receiving.Connect(remote, int.Parse(response.Properties["SendingPort"].ToString()));
+                sending.Connect(remote, int.Parse(response.Properties["ReceivingPort"].ToString()));
+                ClientInterface.Connections.Add("ImageReceiver", new Connection(receiving, true, new Thread(() => { WatchForImages(); })));
+                ClientInterface.Connections.Add("ImageSender", new Connection(sending, true));
+                ClientInterface.Connections["ImageReceiver"].StartHandler();
+                Pause(false);
+                OnConnected?.BeginInvoke(result => { try { OnConnected.EndInvoke(result); } catch { } }, null);
+            }
+            catch (Exception error) { if (Connected) { base.Disconnect(); } throw error; }
         }
         public override async Task ConnectAsync(IPAddress remote, int port)
         {
@@ -52,9 +55,12 @@ namespace ImageLib
         }
         public override void Disconnect()
         {
-            try { base.Disconnect(); }
+            try
+            {
+                base.Disconnect();
+                OnDisconnected?.BeginInvoke(result => { try { OnDisconnected.EndInvoke(result); } catch { } }, null);
+            }
             catch (Exception error) { throw error; }
-            OnDisconnected?.BeginInvoke(result => { try { OnDisconnected.EndInvoke(result); } catch { } }, null);
         }
         public override async Task DisconnectAsync()
         {

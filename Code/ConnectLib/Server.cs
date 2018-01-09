@@ -128,6 +128,42 @@ namespace ConnectLib
 
         #region Controls
         /// <summary>
+        /// Broadcasts the specified command(s) to all connected hosts.
+        /// </summary>
+        /// <param name="commands">The command(s) to be broadcast.</param>
+        public void Broadcast(params Command[] commands)
+        {
+            foreach (ClientObject client in Clients.Values)
+                Send(client, commands);
+        }
+        /// <summary>
+        /// Broadcasts the specified command(s) to all connected hosts asynchronously.
+        /// </summary>
+        /// <param name="commands">The command(s) to be broadcast.</param>
+        public async Task BroadcastAsync(params Command[] commands)
+        {
+            await Task.Run(() => Broadcast(commands));
+        }
+        /// <summary>
+        /// Sends the specified command(s) to the specified host.
+        /// </summary>
+        /// <param name="target">The ClientInformation to send to.</param>
+        /// <param name="commands">The command(s) to be sent.</param>
+        public void Send(ClientObject client, params Command[] commands)
+        {
+            if (client != null && client.Connections.ContainsKey("Main") && client.Connections["Main"] != null)
+                client.Connections["Main"].Write(Password, commands);
+        }
+        /// <summary>
+        /// Sends the specified command(s) to the specified host asynchronously.
+        /// </summary>
+        /// <param name="target">The ClientInformation to send to.</param>
+        /// <param name="commands">The command(s) to be sent.</param>
+        public async Task SendAsync(ClientObject client, params Command[] commands)
+        {
+            await Task.Run(() => Send(client, commands));
+        }
+        /// <summary>
         /// Starts listening for connections on the specified port.
         /// </summary>
         /// <param name="port">The port to listen on.</param>
@@ -177,24 +213,7 @@ namespace ConnectLib
         {
             await Task.Run(() => Stop());
         }
-
-        /// <summary>
-        /// Broadcasts the specified command(s) to all connected hosts.
-        /// </summary>
-        /// <param name="commands">The command(s) to be broadcast.</param>
-        protected void Broadcast(params Command[] commands)
-        {
-            foreach (ClientObject client in Clients.Values)
-                Send(client, commands);
-        }
-        /// <summary>
-        /// Broadcasts the specified command(s) to all connected hosts asynchronously.
-        /// </summary>
-        /// <param name="commands">The command(s) to be broadcast.</param>
-        protected async Task BroadcastAsync(params Command[] commands)
-        {
-            await Task.Run(() => Broadcast(commands));
-        }
+        
         /// <summary>
         /// Pauses or unpauses the listening and connection handling Thread's used by the Server.
         /// </summary>
@@ -202,25 +221,6 @@ namespace ConnectLib
         protected void Pause(bool pausing)
         {
             Pausing = pausing;
-        }
-        /// <summary>
-        /// Sends the specified command(s) to the specified host.
-        /// </summary>
-        /// <param name="target">The ClientInformation to send to.</param>
-        /// <param name="commands">The command(s) to be sent.</param>
-        protected void Send(ClientObject client, params Command[] commands)
-        {
-            if (client != null && client.Connections.ContainsKey("Main") && client.Connections["Main"] != null)
-                client.Connections["Main"].Write(Password, commands);
-        }
-        /// <summary>
-        /// Sends the specified command(s) to the specified host asynchronously.
-        /// </summary>
-        /// <param name="target">The ClientInformation to send to.</param>
-        /// <param name="commands">The command(s) to be sent.</param>
-        protected async Task SendAsync(ClientObject client, params Command[] commands)
-        {
-            await Task.Run(() => Send(client, commands));
         }
         #endregion
 

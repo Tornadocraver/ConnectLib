@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.2.4-beta</Version>
+    <Version>1.2.5-beta</Version>
     <Authors>Micah Vertal</Authors>
     <Company>Tornadoenterprises</Company>
     <Description>Imaging library based off of the ConnectLibSTD connection library.</Description>
@@ -16,10 +16,10 @@
     <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>C#, csharp, dotnet, connection, manager, messaging, library, images, imaging, video</PackageTags>
-    <PackageReleaseNotes>Fixed exceptions being thrown on separate threads and in asynchronous operations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed blocking Connect() calls.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.2.4.0</AssemblyVersion>
-    <FileVersion>1.2.4.0</FileVersion>
+    <AssemblyVersion>1.2.5.0</AssemblyVersion>
+    <FileVersion>1.2.5.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
