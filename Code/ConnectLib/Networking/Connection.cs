@@ -135,6 +135,7 @@ namespace ConnectLib.Networking
                 int byteCount = Reader.ReadInt32();
                 return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)), Settings);
             }
+            catch { return default(T); }
             finally { Reading = false; }
         }
         /// <summary>
@@ -153,6 +154,7 @@ namespace ConnectLib.Networking
                 int byteCount = Reader.ReadInt32();
                 return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)).AESDecrypt(password), Settings);
             }
+            catch { return default(T); }
             finally { Reading = false; }
         }
 
@@ -174,7 +176,7 @@ namespace ConnectLib.Networking
                     Writer.Flush();
                 }
             }
-            catch (IOException) { }
+            catch { }
             finally { Writing = false; }
         }
         /// <summary>
@@ -196,7 +198,7 @@ namespace ConnectLib.Networking
                     Writer.Flush();
                 }
             }
-            catch (IOException) { }
+            catch { }
             finally { Writing = false; }
         }
         #endregion

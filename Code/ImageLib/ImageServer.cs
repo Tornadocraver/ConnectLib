@@ -28,7 +28,7 @@ namespace ImageLib
             Port = port;
             try { base.Start(port); }
             catch (Exception error) { throw error; }
-            OnStarted?.BeginInvoke(result => OnStarted.EndInvoke(result), null);
+            OnStarted?.BeginInvoke(result => { try { OnStarted.EndInvoke(result); } catch { } }, null);
         }
         public override async Task StartAsync(int port)
         {
@@ -45,7 +45,7 @@ namespace ImageLib
             }
             try { base.Stop(); }
             catch (Exception error) { throw error; }
-            OnStopped?.BeginInvoke(result => OnStopped.EndInvoke(result), null);
+            OnStopped?.BeginInvoke(result => { try { OnStopped.EndInvoke(result); } catch { } }, null);
             Port = -1;
         }
         public override async Task StopAsync()
@@ -115,7 +115,7 @@ namespace ImageLib
                 while (true)
                 {
                     if (Clients[client.ID].Connections["ImageReceiver"].DataAvailable)
-                        OnImageReceived?.BeginInvoke(Clients[client.ID].Connections["ImageReceiver"].Read<byte[]>(Password), client, result => OnImageReceived.EndInvoke(result), null);
+                        OnImageReceived?.BeginInvoke(Clients[client.ID].Connections["ImageReceiver"].Read<byte[]>(Password), client, result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
                     else
                         Thread.Sleep(0);
                 }

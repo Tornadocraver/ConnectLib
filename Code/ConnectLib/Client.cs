@@ -5,6 +5,7 @@ using ConnectLib.Types;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security;
@@ -24,10 +25,9 @@ namespace ConnectLib
         /// </summary>
         private void HandleCommands()
         {
-            try
+            while (Active)
             {
-                Authenticate();
-                while (Active)
+                try
                 {
                     if (!ClientInterface.Connections["Main"].DataAvailable || Pausing)
                         Thread.Sleep(10);
@@ -43,25 +43,26 @@ namespace ConnectLib
                                 break;
                             case CommandType.ClientAdded:
                                 Clients.Add(command.Sender.ID, command.Sender);
-                                OnClientConnected?.BeginInvoke(command.Sender, result => OnClientConnected.EndInvoke(result), null);
+                                OnClientConnected?.BeginInvoke(command.Sender, result => { try { OnClientConnected.EndInvoke(result); } catch { } }, null);
                                 break;
                             case CommandType.ClientRemoved:
                                 Clients.Remove(command.Sender.ID);
-                                OnClientDisconnected?.BeginInvoke(command.Sender, result => OnClientDisconnected.EndInvoke(result), null);
+                                OnClientDisconnected?.BeginInvoke(command.Sender, result => { try { OnClientDisconnected.EndInvoke(result); } catch { } }, null);
                                 break;
                             case CommandType.Close:
                                 Disconnect(false);
                                 throw new ThreadInterruptedException();
                             case CommandType.Custom:
-                                OnCustomCommand?.BeginInvoke(command, result => OnCustomCommand.EndInvoke(result), null);
+                                OnCustomCommand?.BeginInvoke(command, result => { try { OnCustomCommand.EndInvoke(result); } catch { } }, null);
                                 break;
                             default:
                                 throw new CommandException($"The command type \"{command.Type}\" was not recognized in this context.", command);
                         }
                     }
                 }
+                catch (ThreadInterruptedException) { break; }
+                catch (Exception error) { Debug.WriteLine($"'{error.GetType()}' thrown in thread {Thread.CurrentThread.ManagedThreadId}. Message: {error.Message}"); }
             }
-            catch (ThreadInterruptedException) { }
         }
         #endregion
 
@@ -134,7 +135,10 @@ namespace ConnectLib
                 {
                     socket.Connect(remoteHost, remotePort);
                     ClientInterface.Connections.Add("Main", new Connection(socket, true, new Thread(() => { HandleCommands(); })));
-                    ClientInterface.Connections["Main"].StartHandler();
+                    if (Authenticate())
+                        ClientInterface.Connections["Main"].StartHandler();
+                    else
+                        throw new ConnectException("Authentication rejected by the remote host.");
                 }
             }
             catch (SocketException error) { Disconnect(false); throw new ConnectException(error.Message); }
@@ -224,7 +228,7 @@ namespace ConnectLib
         /// Determines whether the current computer is authorized to access the remote host.
         /// </summary>
         /// <param name="connection">The Connection to the remote host.</param>
-        private void Authenticate()
+        private bool Authenticate()
         {
             #region P2P
             //if (P2PServer)
@@ -245,18 +249,21 @@ namespace ConnectLib
             //}
             //else
             #endregion
+            //{
+            ClientInterface.Information.State = ClientState.Authenticating;
+            ClientInterface.Connections["Main"].Write(new Command(null, ClientInterface.Information, CommandType.Authenticate));
+            ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Authenticate));
+            Command response = ClientInterface.Connections["Main"].Read<Command>();
+            if (response.Type == CommandType.Authorized)
             {
-                ClientInterface.Information.State = ClientState.Authenticating;
-                ClientInterface.Connections["Main"].Write(new Command(null, ClientInterface.Information, CommandType.Authenticate));
-                ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Authenticate));
-                Command response = ClientInterface.Connections["Main"].Read<Command>();
-                if (response.Type == CommandType.Authorized)
-                {
-                    Clients.Add(response.Sender.ID, response.Sender);
-                    ConnectionSuccessful();
-                }
-                else
-                    throw new ConnectException("Authentication rejected by the remote host.");
+                Clients.Add(response.Sender.ID, response.Sender);
+                ConnectionSuccessful();
+                return true;
+            }
+            else
+            {
+                Disconnect(false);
+                return false;
             }
         }
         /// <summary>

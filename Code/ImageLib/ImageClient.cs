@@ -44,7 +44,7 @@ namespace ImageLib
             ClientInterface.Connections.Add("ImageSender", new Connection(sending, true));
             ClientInterface.Connections["ImageReceiver"].StartHandler();
             Pause(false);
-            OnConnected?.BeginInvoke(result => OnConnected.EndInvoke(result), null);
+            OnConnected?.BeginInvoke(result => { try { OnConnected.EndInvoke(result); } catch { } }, null);
         }
         public override async Task ConnectAsync(IPAddress remote, int port)
         {
@@ -54,7 +54,7 @@ namespace ImageLib
         {
             try { base.Disconnect(); }
             catch (Exception error) { throw error; }
-            OnDisconnected?.BeginInvoke(result => OnDisconnected.EndInvoke(result), null);
+            OnDisconnected?.BeginInvoke(result => { try { OnDisconnected.EndInvoke(result); } catch { } }, null);
         }
         public override async Task DisconnectAsync()
         {
@@ -84,7 +84,7 @@ namespace ImageLib
                 while (true)
                 {
                     if (ClientInterface.Connections["ImageReceiver"].DataAvailable)
-                        OnImageReceived?.BeginInvoke(ClientInterface.Connections["ImageReceiver"].Read<byte[]>(Password), result => OnImageReceived.EndInvoke(result), null);
+                        OnImageReceived?.BeginInvoke(ClientInterface.Connections["ImageReceiver"].Read<byte[]>(Password), result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
                     else
                         Thread.Sleep(0);
                 }

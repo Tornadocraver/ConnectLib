@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -28,11 +29,10 @@ namespace ConnectLib
         /// <param name="thisClient">The ClientObject to handle transmissions from.</param>
         private void HandleClient(ClientObject thisClient)
         {
-            try
+            SendConnectedClients(thisClient);
+            while (Active)
             {
-                Authenticate(thisClient);
-                SendConnectedClients(thisClient);
-                while (Active)
+                try
                 {
                     if (thisClient.Connections["Main"].DataAvailable && !Pausing)
                     {
@@ -59,7 +59,7 @@ namespace ConnectLib
                                     case CommandType.Custom:
                                         if (command.Options.Contains(CommandOption.Broadcast))
                                             BroadcastAsync(command);
-                                        OnCustomCommand?.BeginInvoke(command, result => OnCustomCommand.EndInvoke(result), null);
+                                        OnCustomCommand?.BeginInvoke(command, result => { try { OnCustomCommand.EndInvoke(result); }catch { } }, null);
                                         break;
                                     default:
                                         throw new CommandException($"The command type \"{command.Type}\" was not recognized in this context. Time: {DateTime.Now.ToString()}", command);
@@ -70,8 +70,9 @@ namespace ConnectLib
                     else
                         Thread.Sleep(0);
                 }
+                catch (ThreadInterruptedException) { break; }
+                catch (Exception error) { Debug.WriteLine($"'{error.GetType()}' thrown in thread {Thread.CurrentThread.ManagedThreadId}. Message: {error.Message}"); }
             }
-            catch (ThreadInterruptedException) { }
         }
         /// <summary>
         /// Listens for new connections to the Server.
@@ -89,17 +90,25 @@ namespace ConnectLib
                     listener.Listen(100);
                     while (Active)
                     {
-                        if (listener.Poll(0, SelectMode.SelectRead) && !Pausing)
+                        try
                         {
-                            ClientObject client = new ClientObject();
-                            client.Connections.Add("Main", new Connection(listener.Accept(), true, new Thread(() => HandleClient(client))));
-                            client.Connections["Main"].StartHandler();
+                            if (listener.Poll(0, SelectMode.SelectRead) && !Pausing)
+                            {
+                                ClientObject client = new ClientObject();
+                                client.Connections.Add("Main", new Connection(listener.Accept(), true, new Thread(() => HandleClient(client))));
+                                if (Authenticate(client))
+                                    client.Connections["Main"].StartHandler();
+                                else
+                                    client.Dispose();
+                            }
+                            else
+                                Thread.Sleep(0);
                         }
-                        else
-                            Thread.Sleep(10);
+                        catch (ThreadInterruptedException) { break; }
+                        catch (Exception error) { Debug.WriteLine($"'{error.GetType()}' thrown in thread {Thread.CurrentThread.ManagedThreadId}. Message: {error.Message}"); }
                     }
                 }
-                catch (ThreadInterruptedException) { }
+                catch (Exception error) { Debug.WriteLine($"'{error.GetType()}' thrown in thread {Thread.CurrentThread.ManagedThreadId}. Message: {error.Message}"); }
             }
         }
         #endregion
@@ -249,7 +258,7 @@ namespace ConnectLib
         /// Determines whether the remote host is authorized to access the session.
         /// </summary>
         /// <param name="client">The ClientObject to authenticate.</param>
-        private void Authenticate(ClientObject client)
+        private bool Authenticate(ClientObject client)
         {
             try
             {
@@ -260,11 +269,12 @@ namespace ConnectLib
                     client.Information = encrypted.Sender;
                     client.Connections["Main"].Write(new Command(encrypted.Sender, Information, CommandType.Authorized));
                     ClientAdded(client);
+                    return true;
                 }
                 else
                     throw new JsonException();
             }
-            catch (JsonException) { client.Connections["Main"].Write(new Command(null, client.Information, CommandType.Unauthorized)); throw new ThreadInterruptedException(); }
+            catch (JsonException) { client.Connections["Main"].Write(new Command(null, client.Information, CommandType.Unauthorized)); return false; }
         }
         /// <summary>
         /// Called when a remote host connects to the session.
@@ -274,7 +284,7 @@ namespace ConnectLib
         {
             Clients.Add(newClient.Information.ID, newClient);
             BroadcastAsync(new Command(null, newClient.Information, CommandType.ClientAdded));
-            OnClientConnected?.BeginInvoke(newClient.Information, result => OnClientConnected.EndInvoke(result), null);
+            OnClientConnected?.BeginInvoke(newClient.Information, result => { try { OnClientConnected.EndInvoke(result); } catch { } }, null);
         }
         /// <summary>
         /// Called when a remote host disconnects from the session.
@@ -284,7 +294,7 @@ namespace ConnectLib
         {
             Clients.Remove(oldClient.Information.ID);
             BroadcastAsync(new Command(null, oldClient.Information, CommandType.ClientRemoved));
-            OnClientDisconnected?.BeginInvoke(oldClient.Information, result => OnClientDisconnected.EndInvoke(result), null);
+            OnClientDisconnected?.BeginInvoke(oldClient.Information, result => { try { OnClientDisconnected.EndInvoke(result); } catch { } }, null);
         }
         /// <summary>
         /// Sends the information of each connected client to the new client.
