@@ -29,22 +29,13 @@ namespace ImageLib
             {
                 base.Connect(remote, port);
                 while (Clients.Count == 0) { }
-                Pause(true);
                 Dictionary<string, object> arguments = new Dictionary<string, object>();
                 arguments.Add("Imaging", "Start");
                 ClientInterface.Connections["Main"].Write(Password, new Command(null, ClientInterface.Information, CommandType.Custom) { Properties = arguments });
-                readCommand:
-                Command response = ClientInterface.Connections["Main"].Read<Command>(Password);
-                if (response == null || response.Properties == null)
-                    goto readCommand;
-                Socket receiving = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                Socket sending = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                receiving.Connect(remote, int.Parse(response.Properties["SendingPort"].ToString()));
-                sending.Connect(remote, int.Parse(response.Properties["ReceivingPort"].ToString()));
-                ClientInterface.Connections.Add("ImageReceiver", new Connection(receiving, true, new Thread(() => { WatchForImages(); })));
-                ClientInterface.Connections.Add("ImageSender", new Connection(sending, true));
-                ClientInterface.Connections["ImageReceiver"].StartHandler();
-                Pause(false);
+                Starting = true;
+                RemoteHost = remote;
+                while (Starting)
+                    Thread.Sleep(0);
                 OnConnected?.BeginInvoke(result => { try { OnConnected.EndInvoke(result); } catch { } }, null);
             }
             catch (Exception error) { if (Connected) { base.Disconnect(); } throw error; }
@@ -80,8 +71,26 @@ namespace ImageLib
         #region Event Handlers
         private void Custom(Command command)
         {
-            if (command.Properties.ContainsKey("Imaging") && (string)command.Properties["Imaging"] == "Stop")
-                Disconnect();
+            if (command.Properties != null && command.Properties.ContainsKey("Imaging"))
+            {
+                string subCommand = (string)command.Properties["Imaging"];
+                switch (subCommand)
+                {
+                    case "Start":
+                        Socket receiving = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                        Socket sending = new Socket(SocketType.Stream, ProtocolType.Tcp);
+                        receiving.Connect(RemoteHost, int.Parse(command.Properties["SendingPort"].ToString()));
+                        sending.Connect(RemoteHost, int.Parse(command.Properties["ReceivingPort"].ToString()));
+                        ClientInterface.Connections.Add("ImageReceiver", new Connection(receiving, true, new Thread(() => { WatchForImages(); })));
+                        ClientInterface.Connections.Add("ImageSender", new Connection(sending, true));
+                        ClientInterface.Connections["ImageReceiver"].StartHandler();
+                        Starting = false;
+                        break;
+                    case "Stop":
+                        Disconnect();
+                        break;
+                }
+            }
         }
         private void WatchForImages()
         {
@@ -125,6 +134,15 @@ namespace ImageLib
         /// </summary>
         public Action<byte[]> OnImageReceived { get; set; }
         #endregion
+
+        /// <summary>
+        /// The IPAddress of the remote host to connect to.
+        /// </summary>
+        private IPAddress RemoteHost;
+        /// <summary>
+        /// Indicates whether the ImageClient is still connecting to an ImageServer.
+        /// </summary>
+        private bool Starting = false;
         #endregion
     }
 }

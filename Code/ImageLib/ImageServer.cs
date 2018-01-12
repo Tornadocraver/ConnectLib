@@ -89,11 +89,11 @@ namespace ImageLib
             string imageCommand = (string)command.Properties["Imaging"];
             if (imageCommand == "Start")
             {
-                Pause(true);
                 Dictionary<string, object> arguments = new Dictionary<string, object>();
+                arguments.Add("Imaging", "Start");
                 arguments.Add("ReceivingPort", (Port + (6 * (Clients.Count - 1) + 1)));
                 arguments.Add("SendingPort", (Port + (6 * (Clients.Count - 1) + 2)));
-                Clients[command.Sender.ID].Connections["Main"].Write(Password, new Command(command.Sender, Information, CommandType.Custom) { Properties = arguments });
+                Send(Clients[command.Sender.ID], new Command(command.Sender, Information, CommandType.Custom) { Properties = arguments });
                 using (Socket receiver = new Socket(SocketType.Stream, ProtocolType.Tcp))
                 using (Socket sender = new Socket(SocketType.Stream, ProtocolType.Tcp))
                 {
@@ -105,7 +105,6 @@ namespace ImageLib
                     Clients[command.Sender.ID].Connections.Add("ImageSender", new Connection(sender.Accept(), true));
                     Clients[command.Sender.ID].Connections["ImageReceiver"].StartHandler();
                 }
-                Pause(false);
             }
         }
         private void WatchForImages(ClientInformation client)

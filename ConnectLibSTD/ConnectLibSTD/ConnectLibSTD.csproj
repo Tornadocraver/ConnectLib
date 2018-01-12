@@ -4,18 +4,18 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.2.5-beta</Version>
+    <Version>1.2.6-beta</Version>
     <Company>Tornadoenterprises</Company>
     <Authors>Micah Vertal</Authors>
     <Description>Connection library for the .NET Standard 2.0 framework. Allows for implementation of custom commands and tools across a client-server or peer-to-peer connection.</Description>
     <Product>ConnectLibSTD</Product>
-    <PackageReleaseNotes>Modified accessibility of Server properties.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed the broadcasting of messages to the Client who invoked the event.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <Copyright>Tornadoenterprises 2018</Copyright>
     <PackageLicenseUrl>http://apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <SignAssembly>false</SignAssembly>
-    <AssemblyVersion>1.2.5.0</AssemblyVersion>
-    <FileVersion>1.2.5.0</FileVersion>
+    <AssemblyVersion>1.2.6.0</AssemblyVersion>
+    <FileVersion>1.2.6.0</FileVersion>
     <PackageProjectUrl>https://github.com/Tornadocraver/ConnectLib/tree/master/Code/ConnectLib</PackageProjectUrl>
     <PackageIconUrl>https://www.tornadoenterprises.com/content/images?id=ConnectLibIcon</PackageIconUrl>
     <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>

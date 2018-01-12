@@ -134,7 +134,8 @@ namespace ConnectLib
         public void Broadcast(params Command[] commands)
         {
             foreach (ClientObject client in Clients.Values)
-                Send(client, commands);
+                if (commands.FirstOrDefault(c => c.Sender.ID == client.Information.ID) != null)
+                    Send(client, commands);
         }
         /// <summary>
         /// Broadcasts the specified command(s) to all connected hosts asynchronously.
@@ -303,7 +304,7 @@ namespace ConnectLib
         private void SendConnectedClients(ClientObject client)
         {
             foreach (ClientObject cli in Clients.Values)
-                if (cli.Information.ID != client.Information.ID)
+                if (client.Information.ID != cli.Information.ID)
                     client.Connections["Main"].Write(Password, new Command(client.Information, cli.Information, CommandType.ClientAdded));
         }
         #endregion
