@@ -71,13 +71,9 @@ namespace ImageLib
         #region Other Methods
         public void WriteImage(byte[] imageData)
         {
-            try
-            {
-                ClientInterface.Connections["ImageSender"].Writer.Write(imageData.Length);
-                ClientInterface.Connections["ImageSender"].Writer.Write(imageData);
-                ClientInterface.Connections["ImageSender"].Writer.Flush();
-            }
-            catch { }
+            ClientInterface.Connections["ImageSender"].Writer.Write(imageData.Length);
+            ClientInterface.Connections["ImageSender"].Writer.Write(imageData);
+            ClientInterface.Connections["ImageSender"].Writer.Flush();
         }
         public async Task WriteImageAsync(byte[] imageData)
         {

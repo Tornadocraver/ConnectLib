@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>1.2.7-beta</Version>
+    <Version>1.3.0</Version>
     <Company>Tornadoenterprises</Company>
     <Authors>Micah Vertal</Authors>
     <Description>Connection library for the .NET Standard 2.0 framework. Allows for implementation of custom commands and tools across a client-server or peer-to-peer connection.</Description>
@@ -14,8 +14,8 @@
     <Copyright>Tornadoenterprises 2018</Copyright>
     <PackageLicenseUrl>http://apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <SignAssembly>false</SignAssembly>
-    <AssemblyVersion>1.2.7.0</AssemblyVersion>
-    <FileVersion>1.2.7.0</FileVersion>
+    <AssemblyVersion>1.3.0.0</AssemblyVersion>
+    <FileVersion>1.3.0.0</FileVersion>
     <PackageProjectUrl>https://github.com/Tornadocraver/ConnectLib/tree/master/Code/ConnectLib</PackageProjectUrl>
     <PackageIconUrl>https://www.tornadoenterprises.com/content/images?id=ConnectLibIcon</PackageIconUrl>
     <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>

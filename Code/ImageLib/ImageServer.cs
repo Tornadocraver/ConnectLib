@@ -66,20 +66,16 @@ namespace ImageLib
         #region Other Methods
         public void WriteImage(byte[] imageData)
         {
-            if (Clients.Count > 0)
+            if (Count > 0)
             {
                 foreach (ClientObject client in Clients.Values)
                 {
-                    try
+                    if (client.Connections.ContainsKey("ImageSender"))
                     {
-                        if (client.Connections.ContainsKey("ImageSender"))
-                        {
-                            client.Connections["ImageSender"].Writer.Write(imageData.Length);
-                            client.Connections["ImageSender"].Writer.Write(imageData);
-                            client.Connections["ImageSender"].Writer.Flush();
-                        }
+                        client.Connections["ImageSender"].Writer.Write(imageData.Length);
+                        client.Connections["ImageSender"].Writer.Write(imageData);
+                        client.Connections["ImageSender"].Writer.Flush();
                     }
-                    catch { }
                 }
             }
         }
