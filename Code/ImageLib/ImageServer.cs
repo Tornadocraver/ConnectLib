@@ -73,7 +73,11 @@ namespace ImageLib
                     try
                     {
                         if (client.Connections.ContainsKey("ImageSender"))
-                            client.Connections["ImageSender"].Write(Password, imageData);
+                        {
+                            client.Connections["ImageSender"].Writer.Write(imageData.Length);
+                            client.Connections["ImageSender"].Writer.Write(imageData);
+                            client.Connections["ImageSender"].Writer.Flush();
+                        }
                     }
                     catch { }
                 }
@@ -114,7 +118,7 @@ namespace ImageLib
                 while (true)
                 {
                     if (Clients[client.ID].Connections["ImageReceiver"].DataAvailable)
-                        OnImageReceived?.BeginInvoke(Clients[client.ID].Connections["ImageReceiver"].Read<byte[]>(Password), client, result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
+                        OnImageReceived?.BeginInvoke(Clients[client.ID].Connections["ImageReceiver"].Reader.ReadBytes(Clients[client.ID].Connections["ImageReceiver"].Reader.ReadInt32()), client, result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
                     else
                         Thread.Sleep(0);
                 }

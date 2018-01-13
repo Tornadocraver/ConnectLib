@@ -68,7 +68,22 @@ namespace ImageLib
         }
         #endregion
 
-        #region Event Handlers
+        #region Other Methods
+        public void WriteImage(byte[] imageData)
+        {
+            try
+            {
+                ClientInterface.Connections["ImageSender"].Writer.Write(imageData.Length);
+                ClientInterface.Connections["ImageSender"].Writer.Write(imageData);
+                ClientInterface.Connections["ImageSender"].Writer.Flush();
+            }
+            catch { }
+        }
+        public async Task WriteImageAsync(byte[] imageData)
+        {
+            await Task.Run(() => WriteImage(imageData));
+        }
+
         private void Custom(Command command)
         {
             if (command.Properties != null && command.Properties.ContainsKey("Imaging"))
@@ -99,23 +114,12 @@ namespace ImageLib
                 while (true)
                 {
                     if (ClientInterface.Connections["ImageReceiver"].DataAvailable)
-                        OnImageReceived?.BeginInvoke(ClientInterface.Connections["ImageReceiver"].Read<byte[]>(Password), result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
+                        OnImageReceived?.BeginInvoke(ClientInterface.Connections["ImageReceiver"].Reader.ReadBytes(ClientInterface.Connections["ImageReceiver"].Reader.ReadInt32()), result => { try { OnImageReceived.EndInvoke(result); } catch { } }, null);
                     else
                         Thread.Sleep(0);
                 }
             }
             catch (ThreadInterruptedException) { }
-        }
-        #endregion
-
-        #region Other Methods
-        public void WriteImage(byte[] imageData)
-        {
-            ClientInterface.Connections["ImageSender"].Write(Password, imageData);
-        }
-        public async Task WriteImageAsync(byte[] imageData)
-        {
-            await Task.Run(() => WriteImage(imageData));
         }
         #endregion
 

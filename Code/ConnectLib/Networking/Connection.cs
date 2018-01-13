@@ -5,9 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
-using System.Text;
 using System.Threading;
 
 namespace ConnectLib.Networking
@@ -129,11 +127,9 @@ namespace ConnectLib.Networking
         {
             try
             {
-                while (!DataAvailable || Reading)
+                while (!DataAvailable)
                     Thread.Sleep(0);
-                Reading = true;
-                int byteCount = Reader.ReadInt32();
-                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)), Settings);
+                return JsonConvert.DeserializeObject<T>(Reader.ReadString(), Settings);
             }
             catch { return default(T); }
             finally { Reading = false; }
@@ -148,11 +144,9 @@ namespace ConnectLib.Networking
         {
             try
             {
-                while (!DataAvailable || Reading)
+                while (!DataAvailable)
                     Thread.Sleep(0);
-                Reading = true;
-                int byteCount = Reader.ReadInt32();
-                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(Reader.ReadBytes(byteCount)).AESDecrypt(password), Settings);
+                return JsonConvert.DeserializeObject<T>(Reader.ReadString().AESDecrypt(password), Settings);
             }
             catch { return default(T); }
             finally { Reading = false; }
@@ -164,15 +158,11 @@ namespace ConnectLib.Networking
         /// <param name="objects">The object(s) to be written.</param>
         public void Write(params object[] objects)
         {
-            while (Writing)
-                Thread.Sleep(0);
             try
             {
                 foreach (object obj in objects)
                 {
-                    byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings));
-                    Writer.Write(bytes.Length);
-                    Writer.Write(bytes);
+                    Writer.Write(JsonConvert.SerializeObject(obj, Settings));
                     Writer.Flush();
                 }
             }
@@ -186,15 +176,13 @@ namespace ConnectLib.Networking
         /// <param name="objects">The object(s) to be encrypted and written.</param>
         public void Write(SecureString password, params object[] objects)
         {
-            while (Writing)
-                Thread.Sleep(0);
+            if (Writing)
+                return;
             try
             {
                 foreach (object obj in objects)
                 {
-                    byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj, Settings).AESEncrypt(password));
-                    Writer.Write(bytes.Length);
-                    Writer.Write(bytes);
+                    Writer.Write(JsonConvert.SerializeObject(obj, Settings).AESEncrypt(password));
                     Writer.Flush();
                 }
             }
@@ -209,6 +197,10 @@ namespace ConnectLib.Networking
         /// </summary>
         public bool DataAvailable { get { return (Stream == null) ? false : Stream.DataAvailable; } }
         /// <summary>
+        /// A BinaryReader used to read data from the NDNStream (Non-Disposable Network Stream).
+        /// </summary>
+        public BinaryReader Reader { get; private set; }
+        /// <summary>
         /// A Socket used to transmit/receive data to/from the remote host.
         /// </summary>
         public Socket Socket { get; set; }
@@ -216,19 +208,15 @@ namespace ConnectLib.Networking
         /// A NDNStream (Non-Disposable Network Stream) used to read/write data to/from the connected socket.
         /// </summary>
         public NetworkStream Stream { get; private set; }
+        /// <summary>
+        /// A BinaryWriter used to write data to the NDNStream (Non-Disposable Network Stream).
+        /// </summary>
+        public BinaryWriter Writer { get; private set; }
 
         /// <summary>
         /// A Thread that listens for commands from the remote host. Must implement ThreadInterruptedException.
         /// </summary>
         protected Thread CommandHandler { get; set; }
-        /// <summary>
-        /// A BinaryReader used to read data from the NDNStream (Non-Disposable Network Stream).
-        /// </summary>
-        protected BinaryReader Reader { get; private set; }
-        /// <summary>
-        /// A BinaryWriter used to write data to the NDNStream (Non-Disposable Network Stream).
-        /// </summary>
-        protected BinaryWriter Writer { get; private set; }
 
         /// <summary>
         /// Indicates whether the current Connection object has been disposed. Initial value is false.
