@@ -21,7 +21,15 @@
     <RepositoryUrl>https://github.com/Tornadocraver/ConnectLib</RepositoryUrl>
     <PackageTags>C#, csharp, dotnet, connection, manager, messaging, library</PackageTags>
     <RepositoryType>GitHub</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <Compile Include="..\..\Code\ConnectLib\Client.cs" Link="Classes\Client.cs" />
